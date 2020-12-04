@@ -1,19 +1,46 @@
 package com.ax.code.string;
 
+import com.alibaba.fastjson.JSON;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class StringInternTest {
 
     static final int MAX = 1000 * 10000;
     static final String[] arr = new String[MAX];
+    private static final String URL = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=zh-Hans&to=zh-Hant";
+    private static final String SUBSCRIPTION_KEY = "3a0607e87f0b408d94cce881500b9a8b";
 
-    public static void main(String[] args) {
-        String s1 = "ax";
-        String s2 = new String("ax");
-        String s3 = new String("ax").intern();
-        System.out.println(s1 == s2);
-        System.out.println(s1 == s3);
-        System.out.println(s2 == s3);
+    public static void main(String[] args) throws IOException {
+        test("测试%s时%s代发生%d的话");
+    }
+
+    private static void test(String msg, Object... valList) {
+        System.out.println(valList.length);
+        System.out.println(String.format(msg, valList));
+    }
+
+    public static String translate() throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        MediaType mediaType = MediaType.parse("application/json");
+        Map<String, String> contentMap = new HashMap<String, String>();
+        contentMap.put("Text", "爱车");
+        RequestBody body = RequestBody.create(mediaType,
+                JSON.toJSONString(contentMap));
+        Request request = new Request.Builder()
+                .url(URL).post(body)
+                .addHeader("Ocp-Apim-Subscription-Key", SUBSCRIPTION_KEY)
+                .addHeader("Content-type", "application/json").build();
+        Response response = client.newCall(request).execute();
+        return response.body().string();
     }
 
     private static void StringInternPropertyTest() {
@@ -29,6 +56,23 @@ public class StringInternTest {
         }
         long endM = System.currentTimeMillis();
         System.out.println("use intern ：" + (endM - beginM));
+    }
+
+    static class Pig {
+
+        private String name;
+
+        private Integer age;
+
+        Pig(String name, Integer age) {
+            this.name = name;
+            this.age = age;
+        }
+
+        @Override
+        public String toString() {
+            return "name：" + this.name + "、age：" + this.age;
+        }
     }
 
 }
